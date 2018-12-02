@@ -1,7 +1,7 @@
 package main
 
 import (
-	"advent/2018/tableTest"
+	"advent/tableTest"
 	"testing"
 )
 
