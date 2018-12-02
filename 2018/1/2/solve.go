@@ -35,9 +35,6 @@ outer:
 			freqs[freq] = true
 		}
 	}
-	_, err := w.Write([]byte(strconv.FormatInt(freq, 10)))
-	if err != nil {
-		return fmt.Errorf("write '%v': %v", freq, err)
-	}
-	return nil
+	_, err := fmt.Fprintf(w, "%v", freq)
+	return err
 }
