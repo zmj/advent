@@ -23,6 +23,7 @@ var tests = []tableTest.Test{
 	},
 	tableTest.Test{
 		Input: `ac
+		xy
 		bc`,
 		Output: `c`,
 	},
