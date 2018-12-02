@@ -21,6 +21,11 @@ var tests = []tableTest.Test{
 		ac`,
 		Output: `a`,
 	},
+	tableTest.Test{
+		Input: `ac
+		bc`,
+		Output: `c`,
+	},
 }
 
 func TestSolve(t *testing.T) {
