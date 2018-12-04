@@ -27,10 +27,80 @@ func solve(r io.Reader, w io.Writer) error {
 		return fmt.Errorf("read lines: %v", err)
 	}
 	sort.Sort(events)
-	fmt.Printf("%v\n", events)
-	freq := 0
-	_, err := fmt.Fprintf(w, "%v", freq)
+	guards := make(map[int]*guard)
+	var gs *guardShift
+	for _, ge := range events {
+		switch ge.event {
+		case beginShift:
+			if gs != nil {
+				g, ok := guards[gs.id]
+				if !ok {
+					g = &guard{id: gs.id}
+					guards[gs.id] = g
+				}
+				g.shifts = append(g.shifts, *gs)
+			}
+			gs = &guardShift{id: ge.id}
+		case fallAsleep:
+			if gs == nil {
+				return fmt.Errorf("fall asleep before begin shift")
+			}
+			gs.sleep[ge.time.Minute()] = true
+		case wakeUp:
+			if gs == nil {
+				return fmt.Errorf("wake up before begin shift")
+			}
+			gs.wake[ge.time.Minute()] = true
+		}
+	}
+	maxSleepGuardID := -1
+	maxSleepTotal := -1
+	var maxSleepMinutes [60]int
+	for id, g := range guards {
+		sleepTotal := 0
+		var sleepMinutes [60]int
+		for _, gs := range g.shifts {
+			state := wakeUp
+			for min := 0; min < 60; min++ {
+				if gs.wake[min] {
+					state = wakeUp
+				}
+				if gs.sleep[min] {
+					state = fallAsleep
+				}
+				if state == fallAsleep {
+					sleepTotal++
+					sleepMinutes[min]++
+				}
+			}
+		}
+		if sleepTotal > maxSleepTotal {
+			maxSleepGuardID = id
+			maxSleepTotal = sleepTotal
+			maxSleepMinutes = sleepMinutes
+		}
+	}
+	maxSleepMinute := -1
+	maxSleepMinuteTotal := -1
+	for min, total := range maxSleepMinutes {
+		if total > maxSleepMinuteTotal {
+			maxSleepMinute = min
+			maxSleepMinuteTotal = total
+		}
+	}
+	_, err := fmt.Fprintf(w, "%v", maxSleepGuardID*maxSleepMinute)
 	return err
+}
+
+type guard struct {
+	id     int
+	shifts []guardShift
+}
+
+type guardShift struct {
+	id    int
+	wake  [60]bool
+	sleep [60]bool
 }
 
 const (
