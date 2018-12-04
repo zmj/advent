@@ -94,7 +94,7 @@ func (p *parser) regexp() (*regexp.Regexp, error) {
 	if p.re != nil {
 		return p.re, nil
 	}
-	const expr = `#(\d)+ @ (\d+),(\d+): (\d+)x(\d+)`
+	const expr = `#(\d+) @ (\d+),(\d+): (\d+)x(\d+)`
 	re, err := regexp.Compile(expr)
 	if err != nil {
 		return nil, fmt.Errorf("compile '%v': %v", expr, err)
