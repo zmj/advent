@@ -80,6 +80,14 @@ func solve(r io.Reader, w io.Writer) error {
 			maxSleepMinutes = sleepMinutes
 		}
 	}
+	if gs != nil {
+		g, ok := guards[gs.id]
+		if !ok {
+			g = &guard{id: gs.id}
+			guards[gs.id] = g
+		}
+		g.shifts = append(g.shifts, *gs)
+	}
 	maxSleepMinute := -1
 	maxSleepMinuteTotal := -1
 	for min, total := range maxSleepMinutes {
