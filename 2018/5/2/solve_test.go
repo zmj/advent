@@ -53,3 +53,10 @@ func TestReactDifferent(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestReactUnicode(t *testing.T) {
+	ok := react('ä', 'Ä')
+	if !ok {
+		t.Fail()
+	}
+}
