@@ -56,13 +56,41 @@ func solve(r io.Reader, w io.Writer) error {
 			}
 		}
 	}
-	grid.WriteTo(os.Stdout)
-	return nil
+	destAreas := make(map[point]int)
+	for _, dest := range destinations {
+		queue := []point{dest}
+		visited := make(map[point]bool)
+		for len(queue) > 0 {
+			p := queue[0]
+			queue = queue[1:]
+			if !visited[p] && grid.locs[p.x][p.y].inRange() {
+				destAreas[dest]++
+				visited[p] = true
+				for _, nb := range grid.neighbors(p) {
+					queue = append(queue, nb)
+				}
+			}
+		}
+	}
+	// grid.WriteTo(os.Stdout)
+	// fmt.Printf("%v\n", destAreas)
+	maxArea := -1
+	for _, a := range destAreas {
+		if a > maxArea {
+			maxArea = a
+		}
+	}
+	_, err := fmt.Fprintf(w, "%v", maxArea)
+	return err
 }
 
 type loc struct {
 	distances     map[point]int
 	distanceTotal int
+}
+
+func (l loc) inRange() bool {
+	return l.distanceTotal < maxDistance
 }
 
 type grid struct {
@@ -81,7 +109,6 @@ func (g grid) visit(p point, dest point) bool {
 	d := distance(p, dest)
 	l.distances[dest] = d
 	l.distanceTotal += d
-	fmt.Printf("visit %v %v %v %v\n", p, dest, d, l)
 	return d < maxDistance
 }
 
@@ -121,7 +148,7 @@ func (g grid) WriteTo(w io.Writer) (int64, error) {
 	for y := 0; y < g.size.y; y++ {
 		for x := 0; x < g.size.x; x++ {
 			col := g.locs[x][y]
-			if col.distanceTotal < maxDistance {
+			if col.inRange() {
 				fmt.Fprintf(w, "%v\t", col.distanceTotal)
 			} else {
 				fmt.Fprintf(w, ".\t")
