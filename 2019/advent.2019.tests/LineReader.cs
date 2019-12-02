@@ -9,7 +9,7 @@ namespace advent._2019.tests
     {
         public static async IAsyncEnumerable<string> Open(string inputFile)
         {
-            var path = @"../../../" + inputFile;
+            var path = @"../../../input/" + inputFile;
             using var reader = new StreamReader(path);
             while (true)
             {
