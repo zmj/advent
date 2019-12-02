@@ -16,7 +16,12 @@ namespace advent._2019
                 {
                     throw new InvalidOperationException();
                 }
-                return enumerator.Current;
+                var value = enumerator.Current;
+                if (await enumerator.MoveNextAsync())
+                {
+                    throw new InvalidOperationException();
+                }
+                return value;
             }
             finally
             {

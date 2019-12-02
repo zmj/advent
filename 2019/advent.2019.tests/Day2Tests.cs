@@ -70,8 +70,18 @@ namespace advent._2019.tests
         public async Task Day_2_1(string inputFile, int answer)
         {
             var lines = LineReader.Open(inputFile);
-            var x = await new IntComputer().ParseFix1202AndRun(lines);
+            var x = await new IntComputer().ParseFixAndRun(lines, 12, 02);
             Assert.Equal(answer, x);
+        }
+
+        [Theory]
+        [InlineData("input_2_1", 2890696, 1202)]
+        [InlineData("input_2_1", 19690720, 8226)]
+        public async Task Day_2_2(string inputFile, int output, int nounAndVerb)
+        {
+            var lines = LineReader.Open(inputFile);
+            var x = await new IntComputer().FindNounAndVerb(lines, output);
+            Assert.Equal(nounAndVerb, x);
         }
     }
 }

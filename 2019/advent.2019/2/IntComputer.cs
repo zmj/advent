@@ -14,10 +14,44 @@ namespace advent._2019._2
             return values.Select(int.Parse).ToArray();
         }
 
-        public async ValueTask<int> ParseFix1202AndRun(IAsyncEnumerable<string> lines)
+        public async ValueTask<int> ParseFixAndRun(
+            IAsyncEnumerable<string> lines,
+            int noun, int verb)
         {
             var program = ParseLine(await lines.Single());
-            program = Bugfix1202(program);
+            return FixAndRun(program, noun, verb);
+        }
+
+        public async ValueTask<int> FindNounAndVerb(
+            IAsyncEnumerable<string> lines,
+            int output)
+        {
+            var program = ParseLine(await lines.Single());
+            const int max = 100;
+            for (int noun = 0; noun < max; noun++)
+            {
+                for (int verb = 0; verb < max; verb++)
+                {
+                    try
+                    {
+                        int x = FixAndRun(program, noun, verb);
+                        if (x == output)
+                        {
+                            return 100 * noun + verb;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            throw new Exception("not found");
+        }
+
+        public int FixAndRun(int[] program, int noun, int verb)
+        {
+            program[1] = noun;
+            program[2] = verb;
             return RunProgram(program)[0];
         }
 
@@ -54,13 +88,6 @@ namespace advent._2019._2
             proc.Data[binaryOpArgs[2]] = result;
             proc.Advance(1 + binaryOpArgs.Length);
             return true;
-        }
-
-        public static int[] Bugfix1202(int[] program)
-        {
-            program[1] = 12;
-            program[2] = 2;
-            return program;
         }
     }
 }
