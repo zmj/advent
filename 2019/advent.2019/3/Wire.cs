@@ -11,7 +11,7 @@ namespace advent._2019._3
 
         public Wire(string line) => _segments = ParseSegments(line);
 
-        public IEnumerable<(int,int)> Points()
+        public IEnumerable<(int x, int y)> Points()
         {
             var (x, y) = (0, 0);
             foreach (var pt in _segments)
