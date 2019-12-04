@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>advent._2019</RootNamespace>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>true</WarningsAsErrors>
