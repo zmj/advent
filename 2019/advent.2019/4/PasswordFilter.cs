@@ -14,14 +14,25 @@ namespace advent._2019._4
                 NoDecrease(digits);
         }
 
-        public int CountValidPasswords(int min, int max)
+        public bool MeetsAll_Strict(ReadOnlySpan<int> digits)
+        {
+            return SixDigits(digits) &&
+                AtLeastOnePair(digits) &&
+                NoDecrease(digits);
+        }
+
+        public int CountValidPasswords(int min, int max, bool strict)
         {
             var digits = Base10Digits(min).AsSpan();
             var maxDigits = Base10Digits(max).AsSpan();
             int count = 0;
             do
             {
-                if (MeetsAll(digits)) { count++; }
+                if ((strict && MeetsAll_Strict(digits)) ||
+                    (!strict && MeetsAll(digits)))
+                {
+                    count++;
+                }
                 digits = Increment(digits);
             } while (!digits.SequenceEqual(maxDigits));
             return count;
@@ -35,6 +46,22 @@ namespace advent._2019._4
             for (int i = 0; i<digits.Length-1; i++)
             {
                 if (digits[i] == digits[i+1])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool AtLeastOnePair(ReadOnlySpan<int> digits)
+        {
+            for (int i = 0; i < digits.Length - 1; i++)
+            {
+                if (digits[i] == digits[i + 1] &&
+                    (i + 2 == digits.Length ||
+                        digits[i] != digits[i + 2]) &&
+                    (i == 0 ||
+                        digits[i-1] != digits[i]))
                 {
                     return true;
                 }

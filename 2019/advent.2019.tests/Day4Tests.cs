@@ -66,7 +66,25 @@ namespace advent._2019.tests
         [InlineData(138307, 654504, 1855)]
         public void Day_4_1(int min, int max, int answer)
         {
-            int x = new PasswordFilter().CountValidPasswords(min, max);
+            int x = new PasswordFilter().CountValidPasswords(min, max, strict: false);
+            Assert.Equal(answer, x);
+        }
+
+        [Theory]
+        [InlineData(112233, true)]
+        [InlineData(123444, false)]
+        [InlineData(111122, true)]
+        public void MeetsAll_Strict(int value, bool ok)
+        {
+            var digits = PasswordFilter.Base10Digits(value);
+            Assert.Equal(ok, new PasswordFilter().MeetsAll_Strict(digits));
+        }
+
+        [Theory]
+        [InlineData(138307, 654504, 1253)]
+        public void Day_4_2(int min, int max, int answer)
+        {
+            int x = new PasswordFilter().CountValidPasswords(min, max, strict: true);
             Assert.Equal(answer, x);
         }
     }
