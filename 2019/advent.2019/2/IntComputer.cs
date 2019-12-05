@@ -2,16 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace advent._2019._2
 {
     public readonly struct IntComputer
     {
+        private readonly ChannelReader<int> _in;
+        private readonly ChannelWriter<int> _out;
+
+        public IntComputer(ChannelReader<int> input, ChannelWriter<int> output) =>
+            (_in, _out) = (input, output);
+
         public static int[] ParseLine(string line)
         {
             var values = line.Split(',');
             return values.Select(int.Parse).ToArray();
+        }
+
+        public async ValueTask ParseAndRun(
+            IAsyncEnumerable<string> lines)
+        {
+            var program = ParseLine(await lines.Single());
+            RunProgram(program);
         }
 
         public async ValueTask<int> ParseFixAndRun(
@@ -59,6 +73,7 @@ namespace advent._2019._2
         {
             var process = new Process(program);
             while (ExecuteInstruction(process)) { }
+            _out?.Complete();
             return process.Data;
         }
 
@@ -72,6 +87,12 @@ namespace advent._2019._2
                     break;
                 case Operation.Multiply:
                     Multiply(Param(0), Param(1), out Param(2));
+                    break;
+                case Operation.Input:
+                    Input(out Param(0));
+                    break;
+                case Operation.Output:
+                    Output(Param(0));
                     break;
                 case Operation.Exit:
                     return false;
@@ -91,5 +112,7 @@ namespace advent._2019._2
 
         public static void Add(int x, int y, out int z) => z = x + y;
         public static void Multiply(int x, int y, out int z) => z = x * y;
+        public void Input(out int x) { if (!_in.TryRead(out x)) { throw new InvalidOperationException("no input"); } }
+        public void Output(int x) { if (!_out.TryWrite(x)) { throw new InvalidOperationException("can't output"); } }
     }
 }

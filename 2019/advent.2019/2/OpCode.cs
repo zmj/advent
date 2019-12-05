@@ -18,16 +18,16 @@ namespace advent._2019._2
             {
                 Operation.Add => (3, true),
                 Operation.Multiply => (3, true),
-                Operation.Store => (1, true),
+                Operation.Input => (1, true),
                 Operation.Output => (1, false),
                 Operation.Exit => (0, false),
                 _ => (Throw(), false),
             };
             Params = new ParamMode[paramCount];
-            for (int i = 0; i < Params.Length; i++)
+            for (int i = Params.Length-1; i>=0; i--)
             {
                 int base10 = 1;
-                for (int b = Params.Length - 1; b > i; b--) { base10 *= 10; }
+                for (int b = 0; b<i; b++) { base10 *= 10; }
                 int digit = modifiers / base10;
                 Params[i] = (ParamMode)digit;
                 if (!(Params[i] == ParamMode.Position ||
@@ -43,7 +43,7 @@ namespace advent._2019._2
         Unknown = 0,
         Add = 1,
         Multiply = 2,
-        Store = 3,
+        Input = 3,
         Output = 4,
         Exit = 99,
     }
