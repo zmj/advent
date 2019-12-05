@@ -9,18 +9,18 @@ namespace advent._2019._2
     {
         public int[] Data { get; }
 
-        private int _executionPointer;
+        private int _instructionPointer;
 
-        public Process(int[] program) => Data = program.ToArray();
-
-        public ReadOnlySpan<int> ExecutionPointer =>
-            Data.AsSpan().Slice(_executionPointer);
-
-        public void Advance(int count)
+        public Process(int[] program, int ip = 0)
         {
-            var newPosition = _executionPointer + count;
-            if (newPosition >= Data.Length) { throw new ArgumentOutOfRangeException(); }
-            _executionPointer = newPosition;
+            Data = program.ToArray();
+            _instructionPointer = ip;
+        }
+
+        public ref int Read()
+        {
+            if (_instructionPointer >= Data.Length) { throw new InvalidOperationException(); }
+            return ref Data[_instructionPointer++];
         }
     }
 }

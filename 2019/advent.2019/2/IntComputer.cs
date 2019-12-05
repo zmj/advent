@@ -58,36 +58,38 @@ namespace advent._2019._2
         public int[] RunProgram(int[] program)
         {
             var process = new Process(program);
-            while (ExecuteIntruction(process)) { }
+            while (ExecuteInstruction(process)) { }
             return process.Data;
         }
 
-        public bool ExecuteIntruction(Process proc)
+        public bool ExecuteInstruction(Process proc)
         {
-            Func<int, int, int> binaryOp;
-            ReadOnlySpan<int> binaryOpArgs;
-            int opCode = proc.ExecutionPointer[0];
-            switch (opCode)
+            var opCode = new OpCode(proc.Read());
+            switch (opCode.Op)
             {
-                case 1:
-                    binaryOp = (x, y) => x + y;
-                    binaryOpArgs = proc.ExecutionPointer.Slice(1, 3);
+                case Operation.Add:
+                    Add(Param(0), Param(1), out Param(2));
                     break;
-                case 2:
-                    binaryOp = (x, y) => x * y;
-                    binaryOpArgs = proc.ExecutionPointer.Slice(1, 3);
+                case Operation.Multiply:
+                    Multiply(Param(0), Param(1), out Param(2));
                     break;
-                case 99: //done
+                case Operation.Exit:
                     return false;
                 default:
-                    throw new ArgumentException(opCode.ToString());
+                    throw new ArgumentException(opCode.Op.ToString());
             }
-            // do binary operation
-            var (op1, op2) = (proc.Data[binaryOpArgs[0]], proc.Data[binaryOpArgs[1]]);
-            int result = binaryOp(op1, op2);
-            proc.Data[binaryOpArgs[2]] = result;
-            proc.Advance(1 + binaryOpArgs.Length);
             return true;
+
+            ref int Param(int paramIndex)
+            {
+                ParamMode mode = opCode.Params[paramIndex];
+                if (mode == ParamMode.Position) { return ref proc.Data[proc.Read()]; }
+                else if (mode == ParamMode.Immediate) { return ref proc.Read(); }
+                else { throw new ArgumentException(mode.ToString()); }
+            }
         }
+
+        public static void Add(int x, int y, out int z) => z = x + y;
+        public static void Multiply(int x, int y, out int z) => z = x * y;
     }
 }

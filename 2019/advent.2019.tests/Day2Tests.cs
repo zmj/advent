@@ -26,7 +26,7 @@ namespace advent._2019.tests
         public void Add()
         {
             var proc = new Process(new[] { 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 });
-            bool ok = new IntComputer().ExecuteIntruction(proc);
+            bool ok = new IntComputer().ExecuteInstruction(proc);
             Assert.True(ok);
             Assert.Equal(70, proc.Data[3]);
         }
@@ -34,9 +34,8 @@ namespace advent._2019.tests
         [Fact]
         public void Multiply()
         {
-            var proc = new Process(new[] { 1, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 });
-            proc.Advance(4);
-            bool ok = new IntComputer().ExecuteIntruction(proc);
+            var proc = new Process(new[] { 1, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 }, ip: 4);
+            bool ok = new IntComputer().ExecuteInstruction(proc);
             Assert.True(ok);
             Assert.Equal(3500, proc.Data[0]);
         }
@@ -44,9 +43,8 @@ namespace advent._2019.tests
         [Fact]
         public void Done()
         {
-            var proc = new Process(new[] { 3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 });
-            proc.Advance(8);
-            bool ok = new IntComputer().ExecuteIntruction(proc);
+            var proc = new Process(new[] { 3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 }, ip: 8);
+            bool ok = new IntComputer().ExecuteInstruction(proc);
             Assert.False(ok);
         }
 
