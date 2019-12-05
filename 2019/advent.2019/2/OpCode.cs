@@ -11,7 +11,7 @@ namespace advent._2019._2
 
         public OpCode(int value)
         {
-            int Throw() => throw new ArgumentException($"unknown op: {value}");
+            int Throw() => throw new ArgumentException($"invalid op: {value}");
             Op = (Operation)(value % 100);
             int modifiers = (value - (int)Op) / 100;
             var (paramCount, lastMustBePosition) = Op switch
@@ -20,6 +20,10 @@ namespace advent._2019._2
                 Operation.Multiply => (3, true),
                 Operation.Input => (1, true),
                 Operation.Output => (1, false),
+                Operation.JumpIfTrue => (2, false),
+                Operation.JumpIfFalse => (2, false),
+                Operation.LessThan => (3, true),
+                Operation.Equals => (3, true),
                 Operation.Exit => (0, false),
                 _ => (Throw(), false),
             };
@@ -45,6 +49,10 @@ namespace advent._2019._2
         Multiply = 2,
         Input = 3,
         Output = 4,
+        JumpIfTrue = 5,
+        JumpIfFalse = 6,
+        LessThan = 7,
+        Equals = 8,
         Exit = 99,
     }
 

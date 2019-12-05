@@ -22,5 +22,7 @@ namespace advent._2019._2
             if (_instructionPointer >= Data.Length) { throw new InvalidOperationException(); }
             return ref Data[_instructionPointer++];
         }
+
+        public ref int Ip => ref _instructionPointer;
     }
 }

@@ -28,6 +28,68 @@ namespace advent._2019._2
             RunProgram(program);
         }
 
+        public int[] RunProgram(int[] program)
+        {
+            var process = new Process(program);
+            while (ExecuteInstruction(process)) { }
+            _out?.Complete();
+            return process.Data;
+        }
+
+        public bool ExecuteInstruction(Process proc)
+        {
+            var opCode = new OpCode(proc.Read());
+            switch (opCode.Op)
+            {
+                case Operation.Add:
+                    Add(Param(0), Param(1), out Param(2));
+                    break;
+                case Operation.Multiply:
+                    Multiply(Param(0), Param(1), out Param(2));
+                    break;
+                case Operation.Input:
+                    Input(out Param(0));
+                    break;
+                case Operation.Output:
+                    Output(Param(0));
+                    break;
+                case Operation.JumpIfTrue:
+                    JumpIfTrue(Param(0), Param(1), ref proc.Ip);
+                    break;
+                case Operation.JumpIfFalse:
+                    JumpIfFalse(Param(0), Param(1), ref proc.Ip);
+                    break;
+                case Operation.LessThan:
+                    LessThan(Param(0), Param(1), out Param(2));
+                    break;
+                case Operation.Equals:
+                    Equals(Param(0), Param(1), out Param(2));
+                    break;
+                case Operation.Exit:
+                    return false;
+                default:
+                    throw new ArgumentException(opCode.Op.ToString());
+            }
+            return true;
+
+            ref int Param(int paramIndex)
+            {
+                ParamMode mode = opCode.Params[paramIndex];
+                if (mode == ParamMode.Position) { return ref proc.Data[proc.Read()]; }
+                else if (mode == ParamMode.Immediate) { return ref proc.Read(); }
+                else { throw new ArgumentException(mode.ToString()); }
+            }
+        }
+
+        public static void Add(int x, int y, out int z) => z = x + y;
+        public static void Multiply(int x, int y, out int z) => z = x * y;
+        public void Input(out int x) { if (!_in.TryRead(out x)) { throw new InvalidOperationException("no input"); } }
+        public void Output(int x) { if (!_out.TryWrite(x)) { throw new InvalidOperationException("can't output"); } }
+        public void JumpIfTrue(int x, int y, ref int z) { if (x != 0) { z = y; } }
+        public void JumpIfFalse(int x, int y, ref int z) { if (x == 0) { z = y; } }
+        public void LessThan(int x, int y, out int z) => z = x < y ? 1 : 0;
+        public void Equals(int x, int y, out int z) => z = x == y ? 1 : 0;
+
         public async ValueTask<int> ParseFixAndRun(
             IAsyncEnumerable<string> lines,
             int noun, int verb)
@@ -68,51 +130,5 @@ namespace advent._2019._2
             program[2] = verb;
             return RunProgram(program)[0];
         }
-
-        public int[] RunProgram(int[] program)
-        {
-            var process = new Process(program);
-            while (ExecuteInstruction(process)) { }
-            _out?.Complete();
-            return process.Data;
-        }
-
-        public bool ExecuteInstruction(Process proc)
-        {
-            var opCode = new OpCode(proc.Read());
-            switch (opCode.Op)
-            {
-                case Operation.Add:
-                    Add(Param(0), Param(1), out Param(2));
-                    break;
-                case Operation.Multiply:
-                    Multiply(Param(0), Param(1), out Param(2));
-                    break;
-                case Operation.Input:
-                    Input(out Param(0));
-                    break;
-                case Operation.Output:
-                    Output(Param(0));
-                    break;
-                case Operation.Exit:
-                    return false;
-                default:
-                    throw new ArgumentException(opCode.Op.ToString());
-            }
-            return true;
-
-            ref int Param(int paramIndex)
-            {
-                ParamMode mode = opCode.Params[paramIndex];
-                if (mode == ParamMode.Position) { return ref proc.Data[proc.Read()]; }
-                else if (mode == ParamMode.Immediate) { return ref proc.Read(); }
-                else { throw new ArgumentException(mode.ToString()); }
-            }
-        }
-
-        public static void Add(int x, int y, out int z) => z = x + y;
-        public static void Multiply(int x, int y, out int z) => z = x * y;
-        public void Input(out int x) { if (!_in.TryRead(out x)) { throw new InvalidOperationException("no input"); } }
-        public void Output(int x) { if (!_out.TryWrite(x)) { throw new InvalidOperationException("can't output"); } }
     }
 }
