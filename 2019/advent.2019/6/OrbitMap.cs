@@ -19,15 +19,40 @@ namespace advent._2019._6
             }
         }
 
-        public int IndirectOrbits(string c) => c switch
+        public int IndirectOrbits(string c, string root = "COM") => c switch
         {
-            "COM" => -1,
-            _ => 1 + IndirectOrbits(_childToParent[c]),
+            _ when c == root => -1,
+            _ => 1 + IndirectOrbits(_childToParent[c], root),
         };
 
         public int TotalOrbits() => _childToParent.Keys.Sum(TotalOrbits);
 
         public int TotalOrbits(string c) => 1 + IndirectOrbits(c);
+
+        public int DistanceUp(string c, string p) => IndirectOrbits(c, root: p);
+
+        public int Distance(string x, string y)
+        {
+            foreach (var px in Parents(x))
+            {
+                foreach (var py in Parents(y))
+                {
+                    if (px == py)
+                    {
+                        return DistanceUp(x, px) + DistanceUp(y, py);
+                    }
+                }
+            }
+            throw new Exception("no common parent");
+
+            IEnumerable<string> Parents(string c)
+            {
+                while (_childToParent.TryGetValue(c, out c))
+                {
+                    yield return c;
+                }
+            }
+        }
 
         public static (string, string) ParseOrbit(string line)
         {

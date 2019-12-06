@@ -59,5 +59,47 @@ K)L";
             int x = map.TotalOrbits();
             Assert.Equal(answer, x);
         }
+
+        private const string example2 = @"COM)B
+B)C
+C)D
+D)E
+E)F
+B)G
+G)H
+D)I
+E)J
+J)K
+K)L
+K)YOU
+I)SAN";
+
+        [Theory]
+        [InlineData(example2, "YOU", "D", 3)]
+        [InlineData(example2, "SAN", "D", 1)]
+        public async Task DistanceUp(string orbits, string src, string dst, int n)
+        {
+            var map = await new OrbitMap().Load(LineReader.Split(orbits));
+            int x = map.DistanceUp(src, dst);
+            Assert.Equal(n, x);
+        }
+
+        [Theory]
+        [InlineData(example2, "YOU", "SAN", 4)]
+        public async Task Distance(string orbits, string src, string dst, int n)
+        {
+            var map = await new OrbitMap().Load(LineReader.Split(orbits));
+            int x = map.Distance(src, dst);
+            Assert.Equal(n, x);
+        }
+
+        [Theory]
+        [InlineData("input_6_1", 517)]
+        public async Task Day_6_2(string inputFile, int answer)
+        {
+            var map = await new OrbitMap().Load(LineReader.Open(inputFile));
+            int x = map.Distance("YOU", "SAN");
+            Assert.Equal(answer, x);
+        }
     }
 }
