@@ -47,7 +47,7 @@ namespace advent._2019._6
 
             IEnumerable<string> Parents(string c)
             {
-                while (_childToParent.TryGetValue(c, out c))
+                while (_childToParent.TryGetValue(c, out c!))
                 {
                     yield return c;
                 }
