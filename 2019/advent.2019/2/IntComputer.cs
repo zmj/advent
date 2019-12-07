@@ -25,18 +25,18 @@ namespace advent._2019._2
             IAsyncEnumerable<string> lines)
         {
             var program = ParseLine(await lines.Single());
-            RunProgram(program);
+            await RunProgram(program);
         }
 
-        public int[] RunProgram(int[] program)
+        public async ValueTask<int[]> RunProgram(int[] program)
         {
             var process = new Process(program);
-            while (ExecuteInstruction(process)) { }
+            while (await ExecuteInstruction(process)) { }
             _out?.Complete();
             return process.Data;
         }
 
-        public bool ExecuteInstruction(Process proc)
+        public async ValueTask<bool> ExecuteInstruction(Process proc)
         {
             var opCode = new OpCode(proc.Read());
             switch (opCode.Op)
@@ -48,10 +48,11 @@ namespace advent._2019._2
                     Multiply(Param(0), Param(1), out Param(2));
                     break;
                 case Operation.Input:
-                    Input(out Param(0));
+                    int x = await Input();
+                    Param(0) = x;
                     break;
                 case Operation.Output:
-                    Output(Param(0));
+                    await Output(Param(0));
                     break;
                 case Operation.JumpIfTrue:
                     JumpIfTrue(Param(0), Param(1), ref proc.Ip);
@@ -83,8 +84,8 @@ namespace advent._2019._2
 
         public static void Add(int x, int y, out int z) => z = x + y;
         public static void Multiply(int x, int y, out int z) => z = x * y;
-        public void Input(out int x) => x = _in.Read();
-        public void Output(int x) => _out.Write(x);
+        public ValueTask<int> Input() => _in.ReadAsync();
+        public ValueTask Output(int x) => _out.WriteAsync(x);
         public void JumpIfTrue(int x, int y, ref int z) { if (x != 0) { z = y; } }
         public void JumpIfFalse(int x, int y, ref int z) { if (x == 0) { z = y; } }
         public void LessThan(int x, int y, out int z) => z = x < y ? 1 : 0;
@@ -95,7 +96,7 @@ namespace advent._2019._2
             int noun, int verb)
         {
             var program = ParseLine(await lines.Single());
-            return FixAndRun(program, noun, verb);
+            return await FixAndRun(program, noun, verb);
         }
 
         public async ValueTask<int> FindNounAndVerb(
@@ -110,7 +111,7 @@ namespace advent._2019._2
                 {
                     try
                     {
-                        int x = FixAndRun(program, noun, verb);
+                        int x = await FixAndRun(program, noun, verb);
                         if (x == output)
                         {
                             return 100 * noun + verb;
@@ -124,11 +125,11 @@ namespace advent._2019._2
             throw new Exception("not found");
         }
 
-        public int FixAndRun(int[] program, int noun, int verb)
+        public async ValueTask<int> FixAndRun(int[] program, int noun, int verb)
         {
             program[1] = noun;
             program[2] = verb;
-            return RunProgram(program)[0];
+            return (await RunProgram(program))[0];
         }
     }
 }

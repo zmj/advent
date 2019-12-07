@@ -28,7 +28,7 @@ namespace advent._2019._7
             var prog = _program;
             await Task.WhenAll(
                 computers.Select(c => 
-                    Task.Run(() => c.RunProgram(prog))));
+                    c.RunProgram(prog).AsTask()));
             return output.Reader.MustRead();
         }
 

@@ -47,7 +47,7 @@ namespace advent._2019.tests
             var (input, output) = Channels();
             var computer = new IntComputer(input.Reader, output.Writer);
             await input.Writer.WriteAsync(1);
-            var x = computer.RunProgram(new[] { 3, 0, 99 });
+            var x = await computer.RunProgram(new[] { 3, 0, 99 });
             Assert.Equal(1, x[0]);
         }
 
@@ -56,7 +56,7 @@ namespace advent._2019.tests
         {
             var (input, output) = Channels();
             var computer = new IntComputer(input.Reader, output.Writer);
-            computer.RunProgram(new[] { 4, 1, 99 });
+            await computer.RunProgram(new[] { 4, 1, 99 });
             var x = await output.Reader.ReadAsync();
             Assert.Equal(1, x);
         }
@@ -78,18 +78,18 @@ namespace advent._2019.tests
         }
 
         [Fact]
-        public void JumpIfTrue()
+        public async Task JumpIfTrueAsync()
         {
             var program = new[] { 1105, 1, 7, 1, 0, 0, 0, 99 };
-            var x = new IntComputer().RunProgram(program);
+            var x = await new IntComputer().RunProgram(program);
             Assert.Equal(1105, x[0]);
         }
 
         [Fact]
-        public void JumpIfFalse()
+        public async Task JumpIfFalseAsync()
         {
             var program = new[] { 1106, 0, 7, 1, 0, 0, 0, 99 };
-            var x = new IntComputer().RunProgram(program);
+            var x = await new IntComputer().RunProgram(program);
             Assert.Equal(1106, x[0]);
         }
 
@@ -97,10 +97,10 @@ namespace advent._2019.tests
         [InlineData(3, 4, true)]
         [InlineData(4, 4, false)]
         [InlineData(5, 4, false)]
-        public void LessThan(int op1, int op2, bool lt)
+        public async Task LessThanAsync(int op1, int op2, bool lt)
         {
             var program = new[] { 1107, op1, op2, 0, 99 };
-            var x = new IntComputer().RunProgram(program);
+            var x = await new IntComputer().RunProgram(program);
             Assert.Equal(lt ? 1 : 0, x[0]);
         }
 
@@ -108,10 +108,10 @@ namespace advent._2019.tests
         [InlineData(3, 4, false)]
         [InlineData(4, 4, true)]
         [InlineData(5, 4, false)]
-        public void Equal(int op1, int op2, bool eq)
+        public async Task EqualAsync(int op1, int op2, bool eq)
         {
             var program = new[] { 1108, op1, op2, 0, 99 };
-            var x = new IntComputer().RunProgram(program);
+            var x = await new IntComputer().RunProgram(program);
             Assert.Equal(eq ? 1 : 0, x[0]);
         }
 
@@ -128,7 +128,7 @@ namespace advent._2019.tests
             var (input, output) = Channels();
             var computer = new IntComputer(input.Reader, output.Writer);
             await input.Writer.WriteAsync(8);
-            computer.RunProgram(program);
+            await computer.RunProgram(program);
             int x = await output.Reader.ReadAsync();
             Assert.Equal(answer, x);
         }

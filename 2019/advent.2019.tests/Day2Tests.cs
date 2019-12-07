@@ -23,28 +23,28 @@ namespace advent._2019.tests
         }
 
         [Fact]
-        public void Add()
+        public async Task AddAsync()
         {
             var proc = new Process(new[] { 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 });
-            bool ok = new IntComputer().ExecuteInstruction(proc);
+            bool ok = await new IntComputer().ExecuteInstruction(proc);
             Assert.True(ok);
             Assert.Equal(70, proc.Data[3]);
         }
 
         [Fact]
-        public void Multiply()
+        public async Task MultiplyAsync()
         {
             var proc = new Process(new[] { 1, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 }, ip: 4);
-            bool ok = new IntComputer().ExecuteInstruction(proc);
+            bool ok = await new IntComputer().ExecuteInstruction(proc);
             Assert.True(ok);
             Assert.Equal(3500, proc.Data[0]);
         }
 
         [Fact]
-        public void Done()
+        public async Task DoneAsync()
         {
             var proc = new Process(new[] { 3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50 }, ip: 8);
-            bool ok = new IntComputer().ExecuteInstruction(proc);
+            bool ok = await new IntComputer().ExecuteInstruction(proc);
             Assert.False(ok);
         }
 
@@ -53,9 +53,9 @@ namespace advent._2019.tests
         [InlineData(new[] { 2, 3, 0, 3, 99 }, new[] { 2, 3, 0, 6, 99 })]
         [InlineData(new[] { 2, 4, 4, 5, 99, 0 }, new[] { 2, 4, 4, 5, 99, 9801 })]
         [InlineData(new[] { 1, 1, 1, 4, 99, 5, 6, 0, 99 }, new[] { 30, 1, 1, 4, 2, 5, 6, 0, 99 })]
-        public void RunToCompletion(int[] start, int[] done)
+        public async Task RunToCompletionAsync(int[] start, int[] done)
         {
-            var x = new IntComputer().RunProgram(start);
+            var x = await new IntComputer().RunProgram(start);
             Assert.Equal(done.Length, x.Length);
             for (int i = 0; i < x.Length; i++)
             {
