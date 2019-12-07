@@ -8,18 +8,20 @@ namespace advent._2019._7
 {
     public readonly struct Amplifiers
     {
-        private readonly int _n;
+        private readonly int[] _phaseSettingValues;
 
-        public Amplifiers(int n) => _n = n;
+        public Amplifiers(int[] phaseSettingValues) =>
+            _phaseSettingValues = phaseSettingValues;
 
-        public async ValueTask<(int, int[])> FindBestPhaseSetting(int[] program)
+        public async ValueTask<(int, int[])> FindBestPhaseSetting(
+            int[] program, bool feedbackLoop = false)
         {
             var circuit = new Circuit(program);
             int maxOutput = int.MinValue;
             int[]? maxOutputSettings = null;
-            foreach (var ps in Permutations.Enumerate(Enumerable.Range(0, _n).ToArray()))
+            foreach (var ps in Permutations.Enumerate(_phaseSettingValues))
             {
-                int output = await circuit.Run(ps);
+                int output = await circuit.Run(ps, feedbackLoop);
                 if (output > maxOutput)
                 {
                     maxOutput = output;
@@ -29,10 +31,11 @@ namespace advent._2019._7
             return (maxOutput, maxOutputSettings ?? throw new Exception("none?!"));
         }
 
-        public async ValueTask<int> FindMaxOutput(IAsyncEnumerable<string> lines)
+        public async ValueTask<int> FindMaxOutput(
+            IAsyncEnumerable<string> lines, bool feedbackLoop = false)
         {
             var program = _2.IntComputer.ParseLine(await lines.Single());
-            return (await FindBestPhaseSetting(program)).Item1;
+            return (await FindBestPhaseSetting(program, feedbackLoop)).Item1;
         }
     }
 }

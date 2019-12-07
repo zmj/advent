@@ -14,10 +14,10 @@ namespace advent._2019._7
 
         public Circuit(int[] program) => _program = program;
 
-        public async ValueTask<int> Run(int[] phaseSettings)
+        public async Task<int> Run(int[] phaseSettings, bool loop)
         {
             var input = Channel.CreateUnbounded<int>();
-            var output = Channel.CreateUnbounded<int>();
+            var output = loop ? input : Channel.CreateUnbounded<int>();
             var computers = ComputerChain(
                 phaseSettings.Length,
                 input.Reader,
@@ -25,11 +25,11 @@ namespace advent._2019._7
                 phaseSettings[1..]);
             input.Writer.MustWrite(phaseSettings[0]);
             input.Writer.MustWrite(0);
-            for (int i = 0; i < computers.Length; i++)
-            {
-                computers[i].RunProgram(_program);
-            }
-            return await output.Reader.ReadAsync();
+            var prog = _program;
+            await Task.WhenAll(
+                computers.Select(c => 
+                    Task.Run(() => c.RunProgram(prog))));
+            return output.Reader.MustRead();
         }
 
         public static IntComputer[] ComputerChain(

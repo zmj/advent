@@ -83,8 +83,8 @@ namespace advent._2019._2
 
         public static void Add(int x, int y, out int z) => z = x + y;
         public static void Multiply(int x, int y, out int z) => z = x * y;
-        public void Input(out int x) => x = _in.MustRead();
-        public void Output(int x) => _out.MustWrite(x);
+        public void Input(out int x) => x = _in.Read();
+        public void Output(int x) => _out.Write(x);
         public void JumpIfTrue(int x, int y, ref int z) { if (x != 0) { z = y; } }
         public void JumpIfFalse(int x, int y, ref int z) { if (x == 0) { z = y; } }
         public void LessThan(int x, int y, out int z) => z = x < y ? 1 : 0;
