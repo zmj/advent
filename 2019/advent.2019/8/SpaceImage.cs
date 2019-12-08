@@ -28,6 +28,38 @@ namespace advent._2019._8
             if (!pixels.IsEmpty) { throw new ArgumentException("did not load all input"); }
         }
 
+        public int Composite(int y, int x)
+        {
+            int C(ReadOnlySpan<int[,]> layers)
+            {
+                if (layers.IsEmpty) { return 2; }
+                int px = layers[0][y, x];
+                return px switch
+                {
+                    2 => C(layers[1..]),
+                    _ => px,
+                };
+            }
+            return C(Layers.AsSpan());
+        }
+
+        public string Render()
+        {
+            var sb = new StringBuilder();
+            for (int y = 0; y < Layers[0].GetLength(0); y++)
+            {
+                Span<char> row = stackalloc char[Layers[0].GetLength(1)];
+                for (int x = 0; x<row.Length; x++)
+                {
+                    int px = Composite(y, x);
+                    row[x] = px switch { 0 => '#', 1 => '.', 2 => ' ', _ => throw new Exception(), };
+                }
+                sb.Append(row);
+                sb.Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
+
         public int IntegrityCheck()
         {
             int? minZeroCount = null;

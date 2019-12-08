@@ -38,5 +38,33 @@ namespace advent._2019.tests
             var x = img.IntegrityCheck();
             Assert.Equal(answer, x);
         }
+
+        [Fact]
+        public void Composite()
+        {
+            var img = new SpaceImage("0222112222120000", 2, 2);
+            Assert.Equal(0, img.Composite(0, 0));
+            Assert.Equal(1, img.Composite(0, 1));
+            Assert.Equal(1, img.Composite(1, 0));
+            Assert.Equal(0, img.Composite(1, 1));
+        }
+
+        [Theory]
+        [InlineData("input_8_1", 25, 6, part2)]
+        public async Task Day_8_2(string inputFile, int w, int h, string answer)
+        {
+            var lines = LineReader.Open(inputFile);
+            var img = await SpaceImage.Parse(lines, w, h);
+            var x = img.Render();
+            Assert.Equal(answer, x);
+        }
+
+        private const string part2 = @"....#.##.#.##.##..####..#
+###.#.##.#.#.##.##.####.#
+##.##.##.#..###.#######.#
+#.###.##.#.#.##.#######.#
+.####.##.#.#.##.##.#.##.#
+....##..##.##.##..###..##
+";
     }
 }
