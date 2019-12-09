@@ -66,6 +66,9 @@ namespace advent._2019._2
                 case Operation.Equals:
                     Equals(Param(0), Param(1), out Param(2));
                     break;
+                case Operation.RelativeBaseOffset:
+                    RelativeBaseOffset(Param(0), ref proc.Rb);
+                    break;
                 case Operation.Exit:
                     return false;
                 default:
@@ -78,6 +81,7 @@ namespace advent._2019._2
                 ParamMode mode = opCode.Params[paramIndex];
                 if (mode == ParamMode.Position) { return ref proc[proc.Read()]; }
                 else if (mode == ParamMode.Immediate) { return ref proc.Read(); }
+                else if (mode == ParamMode.Relative) { return ref proc[proc.Rb + proc.Read()]; }
                 else { throw new ArgumentException(mode.ToString()); }
             }
         }
@@ -90,6 +94,7 @@ namespace advent._2019._2
         public void JumpIfFalse(long x, long y, ref long z) { if (x == 0) { z = y; } }
         public void LessThan(long x, long y, out long z) => z = x < y ? 1 : 0;
         public void Equals(long x, long y, out long z) => z = x == y ? 1 : 0;
+        public void RelativeBaseOffset(long x, ref long y) => y = checked(y + x);
 
         public async ValueTask<long> ParseFixAndRun(
             IAsyncEnumerable<string> lines,

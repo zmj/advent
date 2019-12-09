@@ -42,5 +42,29 @@ namespace advent._2019.tests
             var x = await output.Reader.ReadAsync();
             Assert.Equal(answer, x);
         }
+
+        [Fact]
+        public async Task GrowMemory()
+        {
+            var program = new[] { 3L, 1000, 4, 1000, 99 };
+            var (input, output) = IO();
+            var computer = new IntComputer(input.Reader, output.Writer);
+            input.Writer.MustWrite(9);
+            await computer.RunProgram(program);
+            var x = output.Reader.MustRead();
+            Assert.Equal(9, x);
+        }
+
+        [Theory]
+        [InlineData("input_9_1", 3409270027)]
+        public async Task Day_9_1(string inputFile, long answer)
+        {
+            var (input, output) = IO();
+            var computer = new IntComputer(input.Reader, output.Writer);
+            input.Writer.MustWrite(1);
+            await computer.ParseAndRun(LineReader.Open(inputFile));
+            var x = output.Reader.MustRead();
+            Assert.Equal(answer, x);
+        }
     }
 }

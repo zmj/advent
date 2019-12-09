@@ -10,6 +10,7 @@ namespace advent._2019._2
         private readonly List<(long offset, long[])> _memory = new List<(long, long[])>();
 
         private long _instructionPointer;
+        private long _relativeBaseOffset;
 
         public Process(long[] program, int ip = 0)
         {
@@ -44,6 +45,8 @@ namespace advent._2019._2
         public ref long Read() => ref this[_instructionPointer++];
 
         public ref long Ip => ref _instructionPointer;
+
+        public ref long Rb => ref _relativeBaseOffset;
 
         public long[] Data => _memory[0].Item2;
     }
