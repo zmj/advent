@@ -66,5 +66,17 @@ namespace advent._2019.tests
             var x = output.Reader.MustRead();
             Assert.Equal(answer, x);
         }
+
+        [Theory]
+        [InlineData("input_9_1", 82760)]
+        public async Task Day_9_2(string inputFile, long answer)
+        {
+            var (input, output) = IO();
+            var computer = new IntComputer(input.Reader, output.Writer);
+            input.Writer.MustWrite(2);
+            await computer.ParseAndRun(LineReader.Open(inputFile));
+            var x = output.Reader.MustRead();
+            Assert.Equal(answer, x);
+        }
     }
 }
