@@ -13,25 +13,25 @@ namespace advent._2019._7
         public Amplifiers(int[] phaseSettingValues) =>
             _phaseSettingValues = phaseSettingValues;
 
-        public async ValueTask<(int, int[])> FindBestPhaseSetting(
-            int[] program, bool feedbackLoop = false)
+        public async ValueTask<(long, int[])> FindBestPhaseSetting(
+            long[] program, bool feedbackLoop = false)
         {
             var circuit = new Circuit(program);
-            int maxOutput = int.MinValue;
+            long? maxOutput = null;
             int[]? maxOutputSettings = null;
             foreach (var ps in Permutations.Enumerate(_phaseSettingValues))
             {
-                int output = await circuit.Run(ps, feedbackLoop);
-                if (output > maxOutput)
+                var output = await circuit.Run(ps, feedbackLoop);
+                if (maxOutput == null || output > maxOutput)
                 {
                     maxOutput = output;
                     maxOutputSettings = ps.ToArray();
                 }
             }
-            return (maxOutput, maxOutputSettings ?? throw new Exception("none?!"));
+            return (maxOutput.Value, maxOutputSettings!);
         }
 
-        public async ValueTask<int> FindMaxOutput(
+        public async ValueTask<long> FindMaxOutput(
             IAsyncEnumerable<string> lines, bool feedbackLoop = false)
         {
             var program = _2.IntComputer.ParseLine(await lines.Single());

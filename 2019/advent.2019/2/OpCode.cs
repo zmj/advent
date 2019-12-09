@@ -9,11 +9,11 @@ namespace advent._2019._2
         public Operation Op { get; }
         public ParamMode[] Params { get; }
 
-        public OpCode(int value)
+        public OpCode(long value)
         {
             int Throw() => throw new ArgumentException($"invalid op: {value}");
             Op = (Operation)(value % 100);
-            int modifiers = (value - (int)Op) / 100;
+            int modifiers = ((int)value - (int)Op) / 100;
             var (paramCount, lastMustBePosition) = Op switch
             {
                 Operation.Add => (3, true),

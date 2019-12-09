@@ -10,14 +10,14 @@ namespace advent._2019._7
 {
     public readonly struct Circuit
     {
-        private readonly int[] _program;
+        private readonly long[] _program;
 
-        public Circuit(int[] program) => _program = program;
+        public Circuit(long[] program) => _program = program;
 
-        public async Task<int> Run(int[] phaseSettings, bool loop)
+        public async Task<long> Run(int[] phaseSettings, bool loop)
         {
-            var input = Channel.CreateUnbounded<int>();
-            var output = loop ? input : Channel.CreateUnbounded<int>();
+            var input = Channel.CreateUnbounded<long>();
+            var output = loop ? input : Channel.CreateUnbounded<long>();
             var computers = ComputerChain(
                 phaseSettings.Length,
                 input.Reader,
@@ -34,16 +34,16 @@ namespace advent._2019._7
 
         public static IntComputer[] ComputerChain(
             int n,
-            ChannelReader<int> firstInput,
-            ChannelWriter<int> lastOutput,
+            ChannelReader<long> firstInput,
+            ChannelWriter<long> lastOutput,
             ReadOnlySpan<int> initialInputs)
         {
             if (initialInputs.Length != n-1) { throw new ArgumentException(); }
             var computers = new IntComputer[n];
-            ChannelReader<int> input = firstInput;
+            var input = firstInput;
             for (int i = 0; i < n - 1; i++)
             {
-                var channel = Channel.CreateUnbounded<int>();
+                var channel = Channel.CreateUnbounded<long>();
                 computers[i] = new IntComputer(input, channel.Writer);
                 input = channel.Reader;
                 channel.Writer.MustWrite(initialInputs[i]);

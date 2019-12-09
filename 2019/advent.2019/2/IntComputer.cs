@@ -9,16 +9,16 @@ namespace advent._2019._2
 {
     public readonly struct IntComputer
     {
-        private readonly ChannelReader<int> _in;
-        private readonly ChannelWriter<int> _out;
+        private readonly ChannelReader<long> _in;
+        private readonly ChannelWriter<long> _out;
 
-        public IntComputer(ChannelReader<int> input, ChannelWriter<int> output) =>
+        public IntComputer(ChannelReader<long> input, ChannelWriter<long> output) =>
             (_in, _out) = (input, output);
 
-        public static int[] ParseLine(string line)
+        public static long[] ParseLine(string line)
         {
             var values = line.Split(',');
-            return values.Select(int.Parse).ToArray();
+            return values.Select(long.Parse).ToArray();
         }
 
         public async ValueTask ParseAndRun(
@@ -28,7 +28,7 @@ namespace advent._2019._2
             await RunProgram(program);
         }
 
-        public async ValueTask<int[]> RunProgram(int[] program)
+        public async ValueTask<long[]> RunProgram(long[] program)
         {
             var process = new Process(program);
             while (await ExecuteInstruction(process)) { }
@@ -48,7 +48,7 @@ namespace advent._2019._2
                     Multiply(Param(0), Param(1), out Param(2));
                     break;
                 case Operation.Input:
-                    int x = await Input();
+                    var x = await Input();
                     Param(0) = x;
                     break;
                 case Operation.Output:
@@ -73,25 +73,25 @@ namespace advent._2019._2
             }
             return true;
 
-            ref int Param(int paramIndex)
+            ref long Param(int paramIndex)
             {
                 ParamMode mode = opCode.Params[paramIndex];
-                if (mode == ParamMode.Position) { return ref proc.Data[proc.Read()]; }
+                if (mode == ParamMode.Position) { return ref proc[proc.Read()]; }
                 else if (mode == ParamMode.Immediate) { return ref proc.Read(); }
                 else { throw new ArgumentException(mode.ToString()); }
             }
         }
 
-        public static void Add(int x, int y, out int z) => z = x + y;
-        public static void Multiply(int x, int y, out int z) => z = x * y;
-        public ValueTask<int> Input() => _in.ReadAsync();
-        public ValueTask Output(int x) => _out.WriteAsync(x);
-        public void JumpIfTrue(int x, int y, ref int z) { if (x != 0) { z = y; } }
-        public void JumpIfFalse(int x, int y, ref int z) { if (x == 0) { z = y; } }
-        public void LessThan(int x, int y, out int z) => z = x < y ? 1 : 0;
-        public void Equals(int x, int y, out int z) => z = x == y ? 1 : 0;
+        public static void Add(long x, long y, out long z) => z = checked(x + y);
+        public static void Multiply(long x, long y, out long z) => z = checked(x * y);
+        public ValueTask<long> Input() => _in.ReadAsync();
+        public ValueTask Output(long x) => _out.WriteAsync(x);
+        public void JumpIfTrue(long x, long y, ref long z) { if (x != 0) { z = y; } }
+        public void JumpIfFalse(long x, long y, ref long z) { if (x == 0) { z = y; } }
+        public void LessThan(long x, long y, out long z) => z = x < y ? 1 : 0;
+        public void Equals(long x, long y, out long z) => z = x == y ? 1 : 0;
 
-        public async ValueTask<int> ParseFixAndRun(
+        public async ValueTask<long> ParseFixAndRun(
             IAsyncEnumerable<string> lines,
             int noun, int verb)
         {
@@ -99,7 +99,7 @@ namespace advent._2019._2
             return await FixAndRun(program, noun, verb);
         }
 
-        public async ValueTask<int> FindNounAndVerb(
+        public async ValueTask<long> FindNounAndVerb(
             IAsyncEnumerable<string> lines,
             int output)
         {
@@ -111,7 +111,7 @@ namespace advent._2019._2
                 {
                     try
                     {
-                        int x = await FixAndRun(program, noun, verb);
+                        var x = await FixAndRun(program, noun, verb);
                         if (x == output)
                         {
                             return 100 * noun + verb;
@@ -125,7 +125,7 @@ namespace advent._2019._2
             throw new Exception("not found");
         }
 
-        public async ValueTask<int> FixAndRun(int[] program, int noun, int verb)
+        public async ValueTask<long> FixAndRun(long[] program, int noun, int verb)
         {
             program[1] = noun;
             program[2] = verb;
