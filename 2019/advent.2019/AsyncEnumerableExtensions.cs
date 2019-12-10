@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -71,5 +72,10 @@ namespace advent._2019
             if (i < array.Length) { ResizeArray(i); }
             return array;
         }
+
+        public static bool None<T>(
+            this IEnumerable<T> enumerable,
+            Func<T, bool> f) =>
+            !enumerable.Any(f);
     }
 }
