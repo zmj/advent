@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace advent._2019._10
 {
     public class AsteroidMap
     {
-        private readonly HashSet<(int, int)> _asteroids = new HashSet<(int, int)>();
+        private readonly HashSet<(int x, int y)> _asteroids = new HashSet<(int, int)>();
 
         public int Detect(int x, int y)
         {
@@ -25,27 +26,105 @@ namespace advent._2019._10
             return count;
         }
 
+        public IEnumerable<(int, int)> FireLaserFrom(int x, int y)
+        {
+            _asteroids.Remove((x, y));
+            var asteroidsByDir = _asteroids
+                .GroupBy(a => new Direction(x, y, a.x, a.y))
+                .Select(g => (dir: g.Key, asteroids: g.OrderBy(Distance).ToArray().AsMemory()))
+                .OrderBy(g => g.dir)
+                .ToArray();
+            while (asteroidsByDir.Any(g => !g.asteroids.IsEmpty))
+            {
+                for (int i = 0; i < asteroidsByDir.Length; i++)
+                {
+                    var (dir, asteroids) = asteroidsByDir[i];
+                    if (asteroids.IsEmpty) { continue; }
+                    yield return asteroids.Span[0];
+                    asteroidsByDir[i] = (dir, asteroids[1..]);
+                }
+            }
+
+            int Distance((int x, int y) p) => Math.Abs(p.x - x) + Math.Abs(p.y - y);
+        }
+
+        private readonly struct Direction : IEquatable<Direction>, IComparable<Direction>
+        {
+            public double? slope { get; }
+            public int xIncrement { get; }
+            public int xLimit { get; }
+            public int yIncrement { get; }
+            public int yLimit { get; }
+
+            public Direction(int x1, int y1, int x2, int y2)
+            {
+                slope = (x1 != x2) ?
+                    (double)(y2 - y1) / (x2 - x1) :
+                    (double?)null;
+                xIncrement = x2 > x1 ? 1 : -1;
+                xLimit = x2 > x1 ? x2 : 0;
+                yIncrement = y2 > y1 ? 1 : -1;
+                yLimit = y2 > y1 ? y2 : 0;
+            }
+
+            public bool Equals(Direction other) =>
+                slope == other.slope &&
+                xIncrement == other.xIncrement &&
+                yIncrement == other.yIncrement;
+
+            public int CompareTo(Direction other)
+            {
+                if (slope == null && other.slope == null)
+                {
+                    return yIncrement.CompareTo(other.yIncrement);
+                }
+                else if (slope == null)
+                {
+                    return yIncrement < 0 ? -1 :
+                        other.xIncrement > 0 ? 1 : -1;
+                }
+                else if (other.slope == null)
+                {
+                    return -1 * other.CompareTo(this);
+                }
+                var (q1, q2) = (Quadrant(this), Quadrant(other));
+                return q1 == q2 ?
+                    slope.Value.CompareTo(other.slope.Value) :
+                    q1.CompareTo(q2);
+
+                static int Quadrant(Direction d) =>
+                    (d.xIncrement, d.yIncrement) switch
+                    {
+                        (1, -1) => 1,
+                        (1, 1) => 2,
+                        (-1, 1) => 3,
+                        (-1, -1) => 4,
+                        _ => throw new ArgumentException(d.ToString())
+                    };
+            }
+        }
+
+
         public static IEnumerable<(int, int)> Intersects(
             int x1, int y1, int x2, int y2)
         {
-            if (x1 == x2)
+            var d = new Direction(x1, y1, x2, y2);
+            if (d.slope == null)
             {
-                if (y1 == y2) { yield break; }
-                int yIncrement = y2 > y1 ? 1 : -1;
-                for (int y = y1 + yIncrement; y != y2; y += yIncrement)
+                if (y1 != y2)
                 {
-                    yield return (x1, y);
+                    for (int y = y1 + d.yIncrement; y != y2; y += d.yIncrement)
+                    {
+                        yield return (x1, y);
+                    }
                 }
                 yield break;
             }
-            double slope = (double)(y2 - y1) / (x2 - x1);
-            int xIncrement = x2 > x1 ? 1 : -1;
-            for (int x = x1 + xIncrement; x != x2; x += xIncrement)
+            for (int x = x1 + d.xIncrement; x != x2; x += d.xIncrement)
             {
-                double y = (x - x1) * slope + y1;
+                double y = (x - x1) * d.slope.Value + y1;
                 if (IsInt(y)) { yield return (x, (int)y); }
             }
-
             bool IsInt(double d) => Math.Abs(d - (int)d) < double.Epsilon;
         }
 

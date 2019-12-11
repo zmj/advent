@@ -64,5 +64,57 @@ namespace advent._2019.tests
             var (_, _, n) = map.FindBestLocation();
             Assert.Equal(answer, n);
         }
+
+        const string example2 = @".#..##.###...#######
+##.############..##.
+.#.######.########.#
+.###.#######.####.#.
+#####.##.#.##.###.##
+..#####..#.#########
+####################
+#.####....###.#.#.##
+##.#################
+#####.##.###..####..
+..######..##.#######
+####.##.####...##..#
+.#####..#.######.###
+##...#.##########...
+#.##########.#######
+.####.#.###.###.#.##
+....##.##.###..#####
+.#.#.###########.###
+#.#.#.#####.####.###
+###.##.####.##.#..##";
+
+        [Theory]
+        [InlineData(1, 11, 12)]
+        [InlineData(2, 12, 1)]
+        [InlineData(3, 12, 2)]
+        [InlineData(10, 12, 8)]
+        [InlineData(20, 16, 0)]
+        [InlineData(50, 16, 9)]
+        [InlineData(100, 10, 16)]
+        [InlineData(199, 9, 6)]
+        [InlineData(200, 8, 2)]
+        [InlineData(201, 10, 9)]
+        [InlineData(299, 11, 1)]
+        public async Task FireLaserFrom(int n, int x, int y)
+        {
+            var map = await new AsteroidMap().Load(LineReader.Split(example2));
+            var destroyed = map.FireLaserFrom(11, 13);
+            var nth = destroyed.ElementAt(n - 1);
+            Assert.Equal((x, y), nth);
+        }
+
+        [Theory]
+        [InlineData("input_10_1", 200, 1110)]
+        public async Task Day_10_2(string inputFile, int n, int answer)
+        {
+            var map = await new AsteroidMap().Load(LineReader.Open(inputFile));
+            var (x, y, _) = map.FindBestLocation();
+            var destroyed = map.FireLaserFrom(x, y);
+            var (nx, ny) = destroyed.ElementAt(n - 1);
+            Assert.Equal(answer, 100 * nx + ny);
+        }
     }
 }
