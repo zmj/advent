@@ -18,5 +18,24 @@ namespace advent._2019.tests
             await painter.RunProgram();
             Assert.Equal(answer, painter.PaintedPanels);
         }
+
+        [Theory]
+        [InlineData("input_11_1", answer2)]
+        public async Task Day_11_2(string inputFile, string answer)
+        {
+            var lines = LineReader.Open(inputFile);
+            var painter = await HullPainter.Create(lines);
+            await painter.RunProgram(firstPanelWhite: true);
+            var x = painter.Render();
+            Assert.Equal(answer, x);
+        }
+
+        private const string answer2 = @"#..#.###..####.####..##....##.#..#.###.
+#.#..#..#....#.#....#..#....#.#..#.#..#
+##...#..#...#..###..#..#....#.####.###.
+#.#..###...#...#....####....#.#..#.#..#
+#.#..#.#..#....#....#..#.#..#.#..#.#..#
+#..#.#..#.####.####.#..#..##..#..#.###.
+";
     }
 }

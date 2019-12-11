@@ -29,15 +29,16 @@ namespace advent._2019._11
             _instructions = output.Reader;
         }
 
-        public async Task RunProgram()
+        public async Task RunProgram(bool firstPanelWhite = false)
         {
             await Task.WhenAll(
                 _computer.RunProgram(_program).AsTask(),
-                PaintUntilDone().AsTask());
+                PaintUntilDone(firstPanelWhite).AsTask());
         }
 
-        private async ValueTask PaintUntilDone()
+        private async ValueTask PaintUntilDone(bool firstPanelWhite)
         {
+            if (firstPanelWhite) { _whitePanels.Add((_x, _y)); }
             while (await PaintOnce()) { }
         }
 
@@ -88,9 +89,9 @@ namespace advent._2019._11
             var (dx, dy) = _dir switch
             {
                 Direction.Up => (0, -1),
-                Direction.Left => (1, 0),
+                Direction.Left => (-1, 0),
                 Direction.Down => (0, 1),
-                Direction.Right => (-1, 0),
+                Direction.Right => (1, 0),
                 _ => throw new ArgumentException($"move direction: {_dir}")
             };
             _x += dx;
@@ -98,6 +99,30 @@ namespace advent._2019._11
         }
 
         public int PaintedPanels => _paintedPanels.Count;
+
+        public string Render()
+        {
+            int minX = int.MaxValue, minY = int.MaxValue;
+            int maxX = int.MinValue, maxY = int.MinValue;
+            foreach (var (x, y) in _whitePanels)
+            {
+                if (x < minX) { minX = x; }
+                if (x > maxX) { maxX = x; }
+                if (y < minY) { minY = y; }
+                if (y > maxY) { maxY = y; }
+            }
+            var sb = new StringBuilder();
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    var c = _whitePanels.Contains((x, y)) ? '#' : '.';
+                    sb.Append(c);
+                }
+                sb.Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
 
         public static async ValueTask<HullPainter> Create(
             IAsyncEnumerable<string> lines)
